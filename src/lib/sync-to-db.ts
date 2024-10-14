@@ -23,7 +23,7 @@ async function upsertEmail(email: EmailMessage, accountId: string, index: number
         if (email.sysLabels.includes('inbox') || email.sysLabels.includes('important')) {
             emailLabelType = 'inbox'
         } else if (email.sysLabels.includes('sent')) {
-            emailLabelType = 'draft'
+            emailLabelType = 'sent'
         } else if (email.sysLabels.includes('draft')) {
             emailLabelType = 'draft'
         }
@@ -33,15 +33,15 @@ async function upsertEmail(email: EmailMessage, accountId: string, index: number
             addressesToUpsert.set(address.address, address)
         }
 
-        const upsertedAddress: (Awaited<ReturnType<typeof upsertEmailAddress>>)[] = []
+        const upsertedAddresses: (Awaited<ReturnType<typeof upsertEmailAddress>> | null)[] = [];
 
         for (const address of addressesToUpsert.values()) {
-            const upsertedAddress = await upsertEmailAddress(address, accountId)
-            upsertedAddress.push(upsertedAddress)
+            const upsertedAddress = await upsertEmailAddress(address, accountId);
+            upsertedAddresses.push(upsertedAddress);
         }
 
         const addressMap = new Map(
-            upsertedAddress.filter(Boolean).map(address => [address!.address, address])
+            upsertedAddresses.filter(Boolean).map(address => [address!.address, address])
         )
 
         const fromAddress = addressMap.get(email.from.address);
@@ -195,11 +195,11 @@ async function upsertEmailAddress(address: EmailAddress, accountId: string) {
         if (existingAddress) {
             return await db.emailAddress.update({
                 where: { id: existingAddress.id },
-                data: { name: address.name, row: address.row },
+                data: { name: address.name, raw: address.row },
             });
         } else {
             return await db.emailAddress.create({
-                data: { address: address.address ?? "", name: address.name, row: address.row, accountId },
+                data: { address: address.address ?? "", name: address.name, raw: address.row, accountId },
             })
         }
     } catch (error) {

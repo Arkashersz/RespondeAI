@@ -22,6 +22,7 @@ export interface EmailMessage {
     createdTime: string;
     lastModifiedTime: string;
     sentAt: string;
+    receivedAt: string;
     internetMessageId: string;
     subject: string;
     sysLabels: Array<"junk" | "trash" | "sent" | "inbox" | "unread" | "flagged" | "important" | "draft">;
@@ -44,7 +45,7 @@ export interface EmailMessage {
     internetHeaders: EmailHeader[];
     nativeProperties: Record<string, string>;
     folderId?: string;
-    omitted: Array<"threadId"| "body" | "attachments" | "recipients" | "internetHeaders">;
+    omitted: Array<"threadId" | "body" | "attachments" | "recipients" | "internetHeaders">;
 }
 
 export interface EmailAddress {

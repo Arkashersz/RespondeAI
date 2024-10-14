@@ -1,50 +1,42 @@
-// /api/aurinko/callback
-
+import { getAccountDetails, getAurinkoToken } from "@/lib/aurinko";
 import { waitUntil } from '@vercel/functions'
-import { exchangeCodeForAcessToken, getAccountDetails, getAurinkoAuthUrl } from "@/lib/aurinko"
-import { db } from "@/server/db"
-import { auth } from "@clerk/nextjs/server"
-import { NextRequest, NextResponse } from "next/server"
-import axios from 'axios'
+import { db } from "@/server/db";
+import { auth } from "@clerk/nextjs/server";
+import axios from "axios";
+import { type NextRequest, NextResponse } from "next/server";
 
 export const GET = async (req: NextRequest) => {
     const { userId } = await auth()
-    if (!userId) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
-    const params = req.nextUrl.searchParams
-    const status = params.get('status')
-    if (status != 'sucess') return NextResponse.json({ message: 'Failed to link account' }, { status: 400 })
-    //get the code to exchange for the acess token
-    const code = params.get('code')
-    if (!code) return NextResponse.json({ message: 'No code provided' }, { status: 400 })
-    const token = await exchangeCodeForAcessToken(code)
-    if (!token) return NextResponse.json({ message: 'Failed to exchange code for access token' }, { status: 400 })
+    if (!userId) return NextResponse.json({ error: "UNAUTHORIZED" }, { status: 401 });
 
+    const params = req.nextUrl.searchParams
+    const status = params.get('status');
+    if (status !== 'success') return NextResponse.json({ error: "Account connection failed" }, { status: 400 });
+
+    const code = params.get('code');
+    const token = await getAurinkoToken(code as string)
+    if (!token) return NextResponse.json({ error: "Failed to fetch token" }, { status: 400 });
     const accountDetails = await getAccountDetails(token.accessToken)
     await db.account.upsert({
-        where: {
-            id: token.accountId.toString()
-        },
-        update: {
-            accessToken: token.accessToken,
-        },
+        where: { id: token.accountId.toString() },
         create: {
             id: token.accountId.toString(),
             userId,
+            token: token.accessToken,
+            provider: 'Aurinko',
             emailAddress: accountDetails.email,
-            name: accountDetails.name,
-            accessToken: token.accessToken
+            name: accountDetails.name
+        },
+        update: {
+            token: token.accessToken,
         }
     })
-
-    // trigger initial sync endpoint
     waitUntil(
-        axios.post(`${process.env.NEXT_PUBLIC_URL}/api/initial-sync`, {
-            accountId: token.accountId.toString(),
-            userId
-        }).then(response => {
-            console.log('Initial sync triggered', response.data)
-        }).catch(error => {
-            console.error('Failed to trigger initial sync', error)
+
+        axios.post(`${process.env.NEXT_PUBLIC_URL}/api/initial-sync`, { accountId: token.accountId.toString(), userId }).then((res) => {
+            console.log(res.data)
+        }).catch((err) => {
+            console.log(err.response.data)
         })
     )
 
