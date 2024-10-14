@@ -1,6 +1,6 @@
 // /api/aurinko/callback
 
-import {waitUntil} from '@vercel/functions'
+import { waitUntil } from '@vercel/functions'
 import { exchangeCodeForAcessToken, getAccountDetails, getAurinkoAuthUrl } from "@/lib/aurinko"
 import { db } from "@/server/db"
 import { auth } from "@clerk/nextjs/server"

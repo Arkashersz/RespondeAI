@@ -1,10 +1,11 @@
 import React from 'react'
+import Mail from './mail'
 
 const MailDashBoard = () => {
   return (
-    <div>
-      MailDashboard
-    </div>
+    <Mail 
+    defaultLayout={[20,32,48]}
+    />
   )
 }
 
