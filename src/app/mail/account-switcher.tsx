@@ -1,15 +1,17 @@
 'use client'
+import { Plus } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 import { api } from '@/trpc/react'
 import React from 'react'
 import { useLocalStorage } from 'usehooks-ts'
+import { getAurinkoAuthUrl } from '@/lib/aurinko'
 
 type Props = {
     isCollapsed: boolean
 }
 
-const AccountSwitcher = (props: Props) => {
+const AccountSwitcher = ({ isCollapsed }: Props) => {
     const { data } = api.account.getAccounts.useQuery()
     const [accountId, setAccountId] = useLocalStorage('accountId', '')
 
@@ -41,6 +43,13 @@ const AccountSwitcher = (props: Props) => {
                         </SelectItem>
                     )
                 })}
+                <div onClick={async () => {
+                    const authUrl = await getAurinkoAuthUrl('Google')
+                    window.location.href = authUrl
+                }} className='flex relative hover:bg-gray-50 w-full cursor-pointer items-center rounded-sm py-1.5 p1-2 pr-8 text-sm outline-none focus:bg-accent'>
+                    <Plus className='size-4 mr-1' />
+                    Adicionar conta
+                </div>
             </SelectContent>
         </Select>
     )

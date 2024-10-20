@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import AccountSwitcher from './account-switcher'
+import Sidebar from './sidebar'
 
 type Props = {
     defaultLayout: number[] | undefined
@@ -42,7 +43,7 @@ const Mail = ({ defaultLayout = [20, 32, 48], navCollapsedSize, defaultCollapsed
                         </div>
                         <Separator />
                         {/* Sidebar */}
-                        Sidebar
+                        <Sidebar isCollapsed={false} />
                         <div className="flex-1">
                             {/* IA */}
                             Ask IA
