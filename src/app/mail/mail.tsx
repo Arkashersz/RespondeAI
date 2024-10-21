@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import AccountSwitcher from './account-switcher'
 import Sidebar from './sidebar'
 import ThreadList from './thread-list'
+import ThreadDisplay from './thread-display'
 
 type Props = {
     defaultLayout: number[] | undefined
@@ -40,7 +41,7 @@ const Mail = ({ defaultLayout = [20, 32, 48], navCollapsedSize, defaultCollapsed
                     <div className='flex flex-col h-full flex-1'>
                         <div className={cn('flex h-[52px] items-center justify-between', isCollapsed ? 'h-[52]' : 'px-2')}>
                             {/* Account Switcher  */}
-                            <AccountSwitcher isCollapsed={isCollapsed}/>
+                            <AccountSwitcher isCollapsed={isCollapsed} />
                         </div>
                         <Separator />
                         {/* Sidebar */}
@@ -79,7 +80,7 @@ const Mail = ({ defaultLayout = [20, 32, 48], navCollapsedSize, defaultCollapsed
                 </ResizablePanel>
                 <ResizableHandle withHandle />
                 <ResizablePanel defaultSize={defaultLayout[2]} minSize={30}>
-                    thread display
+                    <ThreadDisplay />
                 </ResizablePanel>
             </ResizablePanelGroup>
         </TooltipProvider>
